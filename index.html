@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script>
+  <script type="text/javascript" src="http://cdn.ractivejs.org/latest/ractive.min.js"></script>
+  <style type="text/css">
+    html, body {
+        height: 100%;
+        margin: 0;
+        width: 100%;
+    }
+
+    #container{
+      height:100%;
+      width:100%;
+      background-color:#fff1e0;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .chapter{
+      position:absolute;
+      height:100%;
+      width:100%;
+      transition:1s;
+    }
+
+    .chapter > div{
+      transition:1s;
+      position:absolute;
+      top:0;
+      width:100%;
+      height:100%;
+    }
+
+    h2{
+      position:absolute;
+      top:2em;
+    }
+  </style>
+
+  <title>Chapter and page layout/navigation using Ractive.js</title>
+
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script id="template" type="text/ractive">
+
+    {{#each chapters}}
+    	<div class="chapter _{{number}}" style="top:{{offsetV}}px"><h1>Chapter {{number}}</h1>
+      {{#each slides}}
+      	<div class="slide _{{number}}" style="left:{{offsetH}}px">
+        <h2>Slide {{number}}</h2>
+        </div>
+      {{/each}}
+      </div>
+  	{{/each}}
+    
+  </script>
+
+  <script type='text/javascript'>
+
+    var container = d3.select('#container'),
+      width = window.innerWidth,
+      height = window.innerHeight;
+      
+    var thisChapter = 0,
+      thisPage = 0;
+
+    var spreadsheet = [
+          {
+            number:1,
+            offsetV:0*height,
+            slides:[
+              {
+                number:1,
+                offsetH:0*width
+              },
+              {
+                number:2,
+                offsetH:1*width
+              }
+            ]
+          },
+          {
+            number:2,
+            offsetV:1*height,
+            slides:[
+              {
+                number:1,
+                offsetH:0*width
+              }
+            ]
+          },
+          {
+            number:3,
+            offsetV:2*height,
+            slides:[
+              {
+                number:1,
+                offsetH:0*width
+              },
+              {
+                number:2,
+                offsetH:1*width
+              },
+              {
+                number:3,
+                offsetH:2*width
+              },
+              {
+                number:4,
+                offsetH:3*width
+              }
+            ]
+          }
+    ];
+      
+    var ractive = new Ractive({
+      el: '#container',
+      template: '#template',
+      data: {
+        chapters:spreadsheet
+      }
+    });
+
+    function checkKey(e) {
+      e = e || window.event;
+      if(e.keyCode == 40){
+        thisChapter+=1;
+        spreadsheet.forEach(function(d,i){
+          d.offsetV-=height;
+        });
+        ractive.set('chapters',spreadsheet);
+      }else if(e.keyCode == 38){
+        thisChapter-=1;
+        spreadsheet.forEach(function(d,i){
+          d.offsetV+=height;
+        });
+        ractive.set('chapters',spreadsheet);
+      }else if(e.keyCode == 39){
+        spreadsheet[thisChapter].slides.forEach(function(d,i){
+            d.offsetH-=width;
+        });
+        ractive.set('chapters',spreadsheet);
+      }else if(e.keyCode == 37){
+        spreadsheet[thisChapter].slides.forEach(function(d,i){
+            d.offsetH+=width;
+        });
+        ractive.set('chapters',spreadsheet);
+      }
+    };
+
+    document.onkeydown = checkKey;
+
+  </script>
+  
+</body>
+
+</html>
+
